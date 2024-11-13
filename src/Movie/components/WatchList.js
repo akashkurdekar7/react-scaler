@@ -1,9 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import styled from "styled-components";
 
 const WatchList = ({ wishlist, setWishlist, removeFromWishlist }) => {
   let [search, setSearch] = useState("");
+  let [genreList, setGenreList] = useState(["All Genres"]);
+  let [selectedGenre, setSelectedGenre] = useState("All Genres");
+
+  const genreIds = {
+    28: "Action",
+    12: "Adventure",
+    16: "Animation",
+    35: "Comedy",
+    80: "Crime",
+    99: "Documentary",
+    18: "Drama",
+    10751: "Family",
+    14: "Fantasy",
+    36: "History",
+    27: "Horror",
+    10402: "Music",
+    9648: "Mystery",
+    10749: "Romance",
+    878: "Science Fiction",
+    10770: "TV Movie",
+    53: "Thriller",
+    10752: "War",
+    37: "Western",
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -11,23 +35,52 @@ const WatchList = ({ wishlist, setWishlist, removeFromWishlist }) => {
   };
 
   const handleAscending = () => {
-    let sortAsc = wishlist.sort((movieA, movieB) => {
+    const sortedWishlist = [...wishlist].sort((movieA, movieB) => {
       return movieA.vote_average - movieB.vote_average;
     });
-    setWishlist([...sortAsc]);
+    setWishlist(sortedWishlist);
   };
+
   const handleDescending = () => {
-    let sortDesc = wishlist.sort((movieA, movieB) => {
+    const sortedWishlist = [...wishlist].sort((movieA, movieB) => {
       return movieB.vote_average - movieA.vote_average;
     });
-    setWishlist([...sortDesc]);
+    setWishlist(sortedWishlist);
+  };
+
+  useEffect(() => {
+    // Collect all unique genres from the movies in wishlist
+    let tempGenres = new Set();
+    wishlist.forEach((movieObj) => {
+      movieObj.genre_ids.forEach((id) => {
+        if (genreIds[id]) {
+          tempGenres.add(genreIds[id]);
+        }
+      });
+    });
+    setGenreList(["All Genres", ...Array.from(tempGenres)]);
+  }, [wishlist]);
+
+  const handleGenreFilter = (genre) => {
+    setSelectedGenre(genre);
   };
 
   return (
     <Wrapper>
       <div className="genre">
-        <div className="genreBtn btn">All Movies</div>
-        <div className="genreBtn btn">Action</div>
+        {genreList.map((genre, index) => {
+          return (
+            <div
+              key={index}
+              className={`genreBtn btn ${
+                selectedGenre === genre ? "selected" : ""
+              }`}
+              onClick={() => handleGenreFilter(genre)}
+            >
+              {genre}
+            </div>
+          );
+        })}
       </div>
 
       <div className="search">
@@ -35,9 +88,7 @@ const WatchList = ({ wishlist, setWishlist, removeFromWishlist }) => {
           onChange={handleSearch}
           value={search}
           type="text"
-          name=""
           placeholder="Search for Movies"
-          id=""
         />
       </div>
 
@@ -62,23 +113,33 @@ const WatchList = ({ wishlist, setWishlist, removeFromWishlist }) => {
           <tbody>
             {wishlist
               .filter((movieObj) => {
-                return movieObj.original_title
+                const matchesSearch = movieObj.original_title
                   .toLowerCase()
                   .includes(search.toLowerCase());
+
+                const matchesGenre =
+                  selectedGenre === "All Genres" ||
+                  movieObj.genre_ids.some(
+                    (id) => genreIds[id] === selectedGenre
+                  );
+
+                return matchesSearch && matchesGenre;
               })
               .map((movieObj) => {
                 return (
-                  <tr>
+                  <tr key={movieObj.id}>
                     <td>
                       <img
                         src={`https://image.tmdb.org/t/p/w500${movieObj.backdrop_path}`}
-                        alt=""
+                        alt={movieObj.original_title}
                       />
                     </td>
                     <td>{movieObj.original_title}</td>
                     <td>{Math.floor(movieObj.vote_average)}</td>
                     <td>{movieObj.popularity}</td>
-                    <td>Action</td>
+                    <td>
+                      {movieObj.genre_ids.map((id) => genreIds[id]).join(", ")}
+                    </td>
                     <td>
                       <button onClick={() => removeFromWishlist(movieObj)}>
                         Delete
@@ -111,6 +172,11 @@ const Wrapper = styled.div`
       color: white;
       font-weight: 700;
       font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .genreBtn.selected {
+      background-color: blue;
     }
     .btn:active {
       background-color: blue;
