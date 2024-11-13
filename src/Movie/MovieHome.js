@@ -52,6 +52,7 @@ const MovieHome = () => {
           element={
             <WatchList
               wishlist={wishlist}
+              setWishlist={setWishlist}
               removeFromWishlist={removeFromWishlist}
             />
           }
