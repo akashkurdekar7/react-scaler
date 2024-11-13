@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-const WatchList = () => {
+const WatchList = ({ wishlist, removeFromWishlist }) => {
+  let [search, setSearch] = useState("");
+
   return (
     <Wrapper>
       <div className="genre">
@@ -26,36 +28,27 @@ const WatchList = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <img
-                  src="https://imgs.search.brave.com/0vpOKzgiVsOa7jlvDuuGcPurIk2UXC7TCq2Oqd37rXc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9sZXRz/ZW5oYW5jZS5pby9z/dGF0aWMvMTk5ODgz/MTkzYzA3MmVhODc2/MDg1MWY5OWQ3ODVh/NjcvMTE0OTkvVXBz/Y2FsZXJCZWZvcmUu/anBn"
-                  alt=""
-                />
-              </td>
-              <td>The Matrix</td>
-              <td>8.5</td>
-              <td>9</td>
-              <td>Action</td>
-              <td>
-                <button>Delete</button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <img
-                  src="https://imgs.search.brave.com/0vpOKzgiVsOa7jlvDuuGcPurIk2UXC7TCq2Oqd37rXc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9sZXRz/ZW5oYW5jZS5pby9z/dGF0aWMvMTk5ODgz/MTkzYzA3MmVhODc2/MDg1MWY5OWQ3ODVh/NjcvMTE0OTkvVXBz/Y2FsZXJCZWZvcmUu/anBn"
-                  alt=""
-                />
-              </td>
-              <td>The Matrix</td>
-              <td>8.5</td>
-              <td>9</td>
-              <td>Action</td>
-              <td>
-                <button>Delete</button>
-              </td>
-            </tr>
+            {wishlist.map((movieObj) => {
+              return (
+                <tr>
+                  <td>
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500${movieObj.backdrop_path}`}
+                      alt=""
+                    />
+                  </td>
+                  <td>{movieObj.original_title}</td>
+                  <td>{movieObj.vote_average}</td>
+                  <td>{movieObj.popularity}</td>
+                  <td>Action</td>
+                  <td>
+                    <button onClick={() => removeFromWishlist(movieObj)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
